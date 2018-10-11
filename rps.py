@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import random
+import numbers
 
 """This program plays a game of Rock, Paper, Scissors between two Players,
 and reports both Player's scores each round."""
@@ -21,14 +22,6 @@ class Player:
 
     def play(self):
         return moves[0]
-
-    def evaluate(self, my_move, their_move):
-        if beats(my_move, their_move):
-            print("Player one wins!")
-        elif my_move == their_move:
-            print("Draw!")
-        else:
-            print("Player two wins!")
 
 
 class RandomPlayer(Player):
@@ -60,8 +53,8 @@ class HumanPlayer(Player):
     def play(self):
         player_move = self.get_user_input()
         while player_move not in moves:
-            player_move = self.get_user_input()
             print("Option not recognized, play again...")
+            player_move = self.get_user_input()
         return player_move
 
 
@@ -96,21 +89,38 @@ class Game:
         self.p2 = p2
 
     def play_round(self):
-
         move1 = self.p1.play()
         index = random.randint(0, len(self.p2)-1)
         move2 = self.p2[index].play()
 
         print("Player 1: {}  Player 2: {}".format(move1, move2))
 
-        self.p1.evaluate(move1, move2)
+        self.evaluate(move1, move2)
 
     def play_game(self):
-        print("Game start!")
-        for round in range(3):
-            print("Round {}:".format(round + 1))
-            self.play_round()
+        raw_input("Paper, Rock, Scissors! \n" + "Press Enter to Start")
+        rounds = raw_input("Choose the game type\n Type 'fast' for fast game" +
+                           "(3 rounds) or type the quantity of rounds " +
+                           "desired, to exit just hit the enter button:\n")
+
+        if rounds == 'fast':
+            for round in range(3):
+                print("Round {}:".format(round + 1))
+                self.play_round()
+        elif str.isdigit(rounds):
+            for round in range(int(rounds)):
+                print("Round {}:".format(round + 1))
+                self.play_round()
+
         print("Game over!")
+
+    def evaluate(self, my_move, their_move):
+        if beats(my_move, their_move):
+            print("Player one wins!")
+        elif my_move == their_move:
+            print("Draw!")
+        else:
+            print("Player two wins!")
 
 
 if __name__ == '__main__':
