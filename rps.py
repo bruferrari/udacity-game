@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import random
-import numbers
 
 """This program plays a game of Rock, Paper, Scissors between two Players,
 and reports both Player's scores each round."""
@@ -22,6 +21,12 @@ class Player:
 
     def play(self):
         return moves[0]
+
+    def get_score(self):
+        return self.total_score
+
+    def add_score(self):
+        self.total_score = self.total_score + 1
 
 
 class RandomPlayer(Player):
@@ -77,6 +82,24 @@ class AlternativePlayer(Player):
         return move
 
 
+class CyclePlayer(Player):
+    def __init__(self):
+        Player.__init__(self)
+        self.their_move = None
+
+    def play(self):
+        move = None
+        if self.their_move is None:
+            move = Player.play(self)
+        else:
+            index = moves.index(self.their_move) + 1
+            if index >= len(moves):
+                index = 0
+            move = moves[index]
+        self.their_move = move
+        return move
+
+
 def beats(one, two):
     return ((one == 'rock' and two == 'scissors') or
             (one == 'scissors' and two == 'paper') or
@@ -84,14 +107,15 @@ def beats(one, two):
 
 
 class Game:
+
     def __init__(self, p1, p2):
         self.p1 = p1
         self.p2 = p2
 
     def play_round(self):
         move1 = self.p1.play()
-        index = random.randint(0, len(self.p2)-1)
-        move2 = self.p2[index].play()
+        # index = random.randint(0, len(self.p2)-1)
+        move2 = self.p2.play()
 
         print("Player 1: {}  Player 2: {}".format(move1, move2))
 
@@ -112,18 +136,21 @@ class Game:
                 print("Round {}:".format(round + 1))
                 self.play_round()
 
-        print("Game over!")
+        print("Game over! \n Total scores:\n " +
+              "Player one: {}\n Player two: {}").format(
+                self.p1.score, self.p2.score)
 
     def evaluate(self, my_move, their_move):
         if beats(my_move, their_move):
+            self.p1.score = self.p1.score + 1
             print("Player one wins!")
         elif my_move == their_move:
             print("Draw!")
         else:
+            self.p2.score = self.p2.score + 1
             print("Player two wins!")
 
 
 if __name__ == '__main__':
-    game = Game(HumanPlayer(), [RandomPlayer(), ReflectionPlayer(),
-                Player(), AlternativePlayer()])
+    game = Game(HumanPlayer(), CyclePlayer())
     game.play_game()
